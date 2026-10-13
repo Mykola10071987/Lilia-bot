@@ -1,5 +1,5 @@
+import os
+import telebot
 
-from bot import bot
-
-if __name__ == "__main__":
-    bot.infinity_polling()
+TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+bot = telebot.TeleBot(TOKEN)
