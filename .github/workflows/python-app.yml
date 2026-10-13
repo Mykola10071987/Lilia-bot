@@ -26,5 +26,4 @@ uses: actions/checkout@v4
       pip install -r requirements.txt
 
   - name: Check Python syntax
-    run: |
-      python -m py_compile bot.py main.py
+    run: python -m py_compile bot.py main.py
