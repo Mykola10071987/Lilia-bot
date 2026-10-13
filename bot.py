@@ -65,3 +65,4 @@ bot.set_webhook(
     url=f"{RENDER_URL.rstrip('/')}/webhook",
     secret_token=WEBHOOK_SECRET,
 )
+bot.infinity_polling()
