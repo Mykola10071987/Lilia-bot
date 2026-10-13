@@ -12,7 +12,7 @@ def start(message):
     bot.reply_to(
         message,
         "Привіт! Я Ліля 🌸\n"
-        "Я твій помічник. Напиши мені повідомлення!"
+        "Приємно познайомитись!"
     )
 
 @bot.message_handler(func=lambda message: True)
