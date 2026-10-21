@@ -60,17 +60,19 @@ def reply(message):
         if not answer:
             answer = "Не вдалося сформувати відповідь. Спробуй ще раз."
 
-        for i in range(0, len(answer), 4000):
-            chunk = answer[i:i + 4000]
+        chunks = [
+            answer[i:i + 4000]
+            for i in range(0, len(answer), 4000)
+        ]
 
-            if i == 0:
-                bot.edit_message_text(
-                    chunk,
-                    chat_id=message.chat.id,
-                    message_id=status.message_id
-                )
-            else:
-                bot.send_message(message.chat.id, chunk)
+        bot.edit_message_text(
+            chunks[0],
+            chat_id=message.chat.id,
+            message_id=status.message_id
+        )
+
+        for chunk in chunks[1:]:
+            bot.send_message(message.chat.id, chunk)
 
     except Exception:
         logging.exception("Помилка відповіді Лілі")
@@ -83,7 +85,7 @@ def reply(message):
                 message_id=status.message_id
             )
         except Exception:
-            logging.exception("Не вдалося повідомити про помилку")
+            logging.exception("Не вдалося надіслати повідомлення про помилку")
 
 
 print("Ліля запущена. Очікую повідомлення в Telegram...")
