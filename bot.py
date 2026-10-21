@@ -8,21 +8,25 @@ from openai import OpenAI
 logging.basicConfig(level=logging.INFO)
 
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
 if not TOKEN:
     raise RuntimeError("Не задано TELEGRAM_BOT_TOKEN")
 
-if not OPENAI_API_KEY:
-    raise RuntimeError("Не задано OPENAI_API_KEY")
+if not GROQ_API_KEY:
+    raise RuntimeError("Не задано GROQ_API_KEY")
 
 bot = telebot.TeleBot(TOKEN)
-ai = OpenAI(api_key=OPENAI_API_KEY)
+
+ai = OpenAI(
+    api_key=GROQ_API_KEY,
+    base_url="https://api.groq.com/openai/v1"
+)
 
 
 def ask_lilia(question):
     response = ai.responses.create(
-        model="gpt-5.5",
+        model="llama-3.3-70b-versatile",
         instructions=(
             "Ти Ліля, доброзичлива розумна помічниця. "
             "Відповідай українською мовою, природно, "
@@ -40,7 +44,7 @@ def start(message):
     bot.reply_to(
         message,
         "Привіт! Я Ліля 🌸\n"
-        "Тепер я можу відповідати на твої запитання!\n"
+        "Я працюю через Groq. "
         "Напиши, що тебе цікавить."
     )
 
@@ -76,7 +80,6 @@ def reply(message):
 
     except Exception:
         logging.exception("Помилка відповіді Лілі")
-
         try:
             bot.edit_message_text(
                 "Вибач, зараз не вдалося отримати відповідь. "
@@ -88,7 +91,7 @@ def reply(message):
             logging.exception("Не вдалося надіслати повідомлення про помилку")
 
 
-print("Ліля запущена. Очікую повідомлення в Telegram...")
+print("Ліля запущена через Groq. Очікую повідомлення в Telegram...")
 
 while True:
     try:
