@@ -30,4 +30,19 @@ def reply(message):
 
 
 print("Ліля запущена. Очікую повідомлення в Telegram...")
-bot.infinity_polling(skip_pending=True, timeout=30)
+
+import time
+import logging
+
+while True:
+    try:
+        print("Ліля підключається до Telegram...")
+        bot.infinity_polling(
+            skip_pending=True,
+            timeout=30,
+            long_polling_timeout=25
+        )
+    except Exception as error:
+        logging.exception("Помилка з'єднання Лілі: %s", error)
+        print("Повторна спроба підключення через 5 секунд...")
+        time.sleep(5)
