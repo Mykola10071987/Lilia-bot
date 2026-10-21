@@ -32,7 +32,7 @@ jobs:
       - name: Check Python syntax
         run: python -m py_compile bot.py main.py
 
-      - name: Start Lilia Telegram bot
+          - name: Start Lilia Telegram bot
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           WEBHOOK_SECRET: ${{ secrets.WEBHOOK_SECRET }}
