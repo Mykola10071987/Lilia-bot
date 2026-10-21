@@ -32,8 +32,10 @@ jobs:
       - name: Check Python syntax
         run: python -m py_compile bot.py main.py
 
+      
       - name: Start Lilia Telegram bot
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           WEBHOOK_SECRET: ${{ secrets.WEBHOOK_SECRET }}
         run: python -u bot.py
