@@ -35,4 +35,5 @@ jobs:
       - name: Start Lilia Telegram bot
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          WEBHOOK_SECRET: ${{ secrets.WEBHOOK_SECRET }}
         run: python -u bot.py
