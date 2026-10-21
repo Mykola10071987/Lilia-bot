@@ -1,13 +1,38 @@
 
 import os
+import time
+import logging
 import telebot
+from openai import OpenAI
+
+logging.basicConfig(level=logging.INFO)
 
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 if not TOKEN:
     raise RuntimeError("Не задано TELEGRAM_BOT_TOKEN")
 
+if not OPENAI_API_KEY:
+    raise RuntimeError("Не задано OPENAI_API_KEY")
+
 bot = telebot.TeleBot(TOKEN)
+ai = OpenAI(api_key=OPENAI_API_KEY)
+
+
+def ask_lilia(question):
+    response = ai.responses.create(
+        model="gpt-5.5",
+        instructions=(
+            "Ти Ліля, доброзичлива розумна помічниця. "
+            "Відповідай українською мовою, природно, "
+            "зрозуміло та по суті. "
+            "Якщо не знаєш відповіді, чесно скажи про це. "
+            "Не вигадуй факти."
+        ),
+        input=question
+    )
+    return response.output_text.strip()
 
 
 @bot.message_handler(commands=["start"])
@@ -15,24 +40,53 @@ def start(message):
     bot.reply_to(
         message,
         "Привіт! Я Ліля 🌸\n"
-        "Я працюю! Можемо спілкуватися."
+        "Тепер я можу відповідати на твої запитання!\n"
+        "Напиши, що тебе цікавить."
     )
 
 
-@bot.message_handler(func=lambda message: True)
+@bot.message_handler(content_types=["text"])
 def reply(message):
-    if message.text:
-        bot.reply_to(
-            message,
-            "Я Ліля 🌸 Отримала твоє повідомлення:\n"
-            + message.text
-        )
+    question = message.text.strip()
+
+    if not question:
+        return
+
+    status = bot.reply_to(message, "Зараз подумаю 🌸")
+
+    try:
+        answer = ask_lilia(question)
+
+        if not answer:
+            answer = "Не вдалося сформувати відповідь. Спробуй ще раз."
+
+        for i in range(0, len(answer), 4000):
+            chunk = answer[i:i + 4000]
+
+            if i == 0:
+                bot.edit_message_text(
+                    chunk,
+                    chat_id=message.chat.id,
+                    message_id=status.message_id
+                )
+            else:
+                bot.send_message(message.chat.id, chunk)
+
+    except Exception:
+        logging.exception("Помилка відповіді Лілі")
+
+        try:
+            bot.edit_message_text(
+                "Вибач, зараз не вдалося отримати відповідь. "
+                "Спробуй трохи пізніше 🌸",
+                chat_id=message.chat.id,
+                message_id=status.message_id
+            )
+        except Exception:
+            logging.exception("Не вдалося повідомити про помилку")
 
 
 print("Ліля запущена. Очікую повідомлення в Telegram...")
-
-import time
-import logging
 
 while True:
     try:
@@ -42,7 +96,6 @@ while True:
             timeout=30,
             long_polling_timeout=25
         )
-    except Exception as error:
-        logging.exception("Помилка з'єднання Лілі: %s", error)
-        print("Повторна спроба підключення через 5 секунд...")
+    except Exception:
+        logging.exception("Помилка з'єднання Лілі")
         time.sleep(5)
